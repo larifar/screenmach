@@ -1,5 +1,6 @@
 package br.com.alura.screenmach;
 
+import br.com.alura.screenmach.principal.Principal;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,6 +14,7 @@ public class ScreenmachApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println("Primeiro Projeto Spring Sem Web");
+		Principal principal = new Principal();
+		principal.exibeMenu();
 	}
 }
