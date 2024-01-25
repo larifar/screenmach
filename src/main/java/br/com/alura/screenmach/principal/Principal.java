@@ -3,13 +3,18 @@ package br.com.alura.screenmach.principal;
 import br.com.alura.screenmach.model.DadosEpisodio;
 import br.com.alura.screenmach.model.DadosSerie;
 import br.com.alura.screenmach.model.DadosTemporada;
+import br.com.alura.screenmach.model.Epidodio;
 import br.com.alura.screenmach.service.ApiKey;
 import br.com.alura.screenmach.service.ConsumoAPI;
 import br.com.alura.screenmach.service.ConverteDados;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
     private Scanner leitor = new Scanner(System.in);
@@ -34,16 +39,42 @@ public class Principal {
 		}
 		temporadas.forEach(System.out::println);
 
-//        for (int i = 0; i < dados.totalTemporadas(); i++) {
-//            List<DadosEpisodio> episodiosTemporada = temporadas.get(i).episodios();
-//            for (DadosEpisodio dadosEpisodio : episodiosTemporada) {
-//                System.out.println("Temporada: " + temporadas.get(i).numero());
-//                System.out.println("Nome episodio: " + dadosEpisodio.titulo());
-//            }
-//        }
-
         temporadas.forEach(t -> t.episodios().forEach(e ->
                         System.out.println("Temporada: "+t.numero() + " - Episodio: " + e.titulo())
+                ));
+
+        List<DadosEpisodio> dadosEpisodios = temporadas.stream()
+                .flatMap(t -> t.episodios().stream())
+                .collect(Collectors.toList());
+
+        System.out.println("\n Top 5 epidodios: ");
+        dadosEpisodios.stream()
+                .filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
+                .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed())
+                .limit(5)
+                .forEach(System.out::println);
+
+        List<Epidodio> epidodios = temporadas.stream()
+                .flatMap(t -> t.episodios().stream()
+                        .map(d -> new Epidodio(t.numero(), d))
+                ).collect(Collectors.toList());
+
+        epidodios.forEach(System.out::println);
+
+        System.out.println("A partir de que ano você deseja ver os episódios? ");
+        var ano = leitor.nextInt();
+        leitor.nextLine();
+
+        LocalDate dataBusca = LocalDate.of(ano, 1, 1);
+
+        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+
+        epidodios.stream()
+                .filter(e -> e.getDataLancamento() != null && e.getDataLancamento().isAfter(dataBusca))
+                .forEach(e -> System.out.println(
+                        "Temporada: " + e.getTemporada() +
+                                " Epidosio: " + e.getTitulo() +
+                                "Data de lançamento: " + e.getDataLancamento().format(formatador)
                 ));
     }
 }
