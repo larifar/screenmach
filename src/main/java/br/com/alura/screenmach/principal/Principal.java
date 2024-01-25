@@ -10,10 +10,7 @@ import br.com.alura.screenmach.service.ConverteDados;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Principal {
@@ -47,12 +44,13 @@ public class Principal {
                 .flatMap(t -> t.episodios().stream())
                 .collect(Collectors.toList());
 
-        System.out.println("\n Top 5 epidodios: ");
-        dadosEpisodios.stream()
-                .filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
-                .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed())
-                .limit(5)
-                .forEach(System.out::println);
+//        System.out.println("\n Top 10 epidodios: ");
+//        dadosEpisodios.stream()
+//                .filter(e -> !e.avaliacao().equalsIgnoreCase("N/A"))
+//                .sorted(Comparator.comparing(DadosEpisodio::avaliacao).reversed())
+//                .limit(10)
+//                .map(e -> e.titulo().toUpperCase())
+//                .forEach(System.out::println);
 
         List<Epidodio> epidodios = temporadas.stream()
                 .flatMap(t -> t.episodios().stream()
@@ -61,20 +59,49 @@ public class Principal {
 
         epidodios.forEach(System.out::println);
 
-        System.out.println("A partir de que ano você deseja ver os episódios? ");
-        var ano = leitor.nextInt();
-        leitor.nextLine();
+//        System.out.println("Digite o nome do ep que gostaria de encontrar: ");
+//        var trechoTitulo = leitor.nextLine();
+//
+//        Optional<Epidodio> episodioBuscado = epidodios.stream()
+//                .filter(e -> e.getTitulo().toUpperCase().contains(trechoTitulo.toUpperCase()))
+//                .peek(e -> System.out.println("episodio encontrado: " + e))
+//                .findFirst();
+//
+//        if (episodioBuscado.isPresent()){
+//            System.out.println("episodio encontrado: ");
+//            System.out.println( "Temporada: "+episodioBuscado.get().getTemporada());
+//        } else {
+//            System.out.println("Episodio não encontrado.");
+//        }
+//
+//        System.out.println("A partir de que ano você deseja ver os episódios? ");
+//        var ano = leitor.nextInt();
+//        leitor.nextLine();
+//
+//        LocalDate dataBusca = LocalDate.of(ano, 1, 1);
+//
+//        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+//
+//        epidodios.stream()
+//                .filter(e -> e.getDataLancamento() != null && e.getDataLancamento().isAfter(dataBusca))
+//                .forEach(e -> System.out.println(
+//                        "Temporada: " + e.getTemporada() +
+//                                " Epidosio: " + e.getTitulo() +
+//                                "Data de lançamento: " + e.getDataLancamento().format(formatador)
+//                ));
 
-        LocalDate dataBusca = LocalDate.of(ano, 1, 1);
+//        Map<Integer, Double> avaliacoesPorTemporada = epidodios.stream()
+//                .filter(e -> e.getAvaliacao() > 0.0)
+//                .collect(Collectors.groupingBy(Epidodio::getTemporada,
+//                        Collectors.averagingDouble(Epidodio::getAvaliacao)));
+//        System.out.println(avaliacoesPorTemporada);
 
-        DateTimeFormatter formatador = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        epidodios.stream()
-                .filter(e -> e.getDataLancamento() != null && e.getDataLancamento().isAfter(dataBusca))
-                .forEach(e -> System.out.println(
-                        "Temporada: " + e.getTemporada() +
-                                " Epidosio: " + e.getTitulo() +
-                                "Data de lançamento: " + e.getDataLancamento().format(formatador)
-                ));
+        DoubleSummaryStatistics est = epidodios.stream()
+                .filter(e -> e.getAvaliacao() > 0.0)
+                .collect(Collectors.summarizingDouble(Epidodio::getAvaliacao));
+        System.out.println("Média: " + est.getAverage() +
+                "\nMelhor ep: " + est.getMax() +
+                "\nPior ep: " + est.getMin()+
+                "\nQuantidade ep: " + est.getCount());
     }
 }
